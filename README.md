@@ -1,4 +1,667 @@
 
+html_code = '''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pro Scientific Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        
+        :root {
+            --bg: #0a0a0f;
+            --bg-card: #12121a;
+            --bg-btn: #1a1a2e;
+            --bg-btn-num: #1e1e2e;
+            --text: #ffffff;
+            --text-dim: #8888a0;
+            --cyan: #00d4ff;
+            --purple: #a855f7;
+            --red: #ef4444;
+            --green: #22c55e;
+            --orange: #f97316;
+        }
+        
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .calc-wrap {
+            width: 100%;
+            height: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-card);
+            position: relative;
+        }
+        
+        @media (min-width: 401px) {
+            .calc-wrap {
+                height: 95vh;
+                border-radius: 16px;
+                border: 1px solid rgba(255,255,255,0.05);
+                box-shadow: 0 0 40px rgba(0,212,255,0.1);
+            }
+        }
+        
+        /* Header - Compact */
+        .header {
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            flex-shrink: 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .logo-text {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            background: linear-gradient(90deg, var(--cyan), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header-btn {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px;
+        }
+        
+        /* Mode Tabs */
+        .tabs {
+            display: flex;
+            padding: 4px 8px;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 6px;
+            border: none;
+            border-radius: 8px;
+            background: var(--bg-btn);
+            color: var(--text-dim);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .tab.active {
+            background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(168,85,247,0.1));
+            color: var(--cyan);
+            border: 1px solid rgba(0,212,255,0.2);
+        }
+        
+        /* Memory Bar */
+        .mem-bar {
+            display: flex;
+            padding: 2px 8px;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        
+        .mem-btn {
+            flex: 1;
+            padding: 4px 2px;
+            border: none;
+            border-radius: 6px;
+            background: var(--bg-btn);
+            color: var(--text-dim);
+            font-size: 10px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        
+        .mem-btn.active {
+            color: var(--cyan);
+            background: rgba(0,212,255,0.1);
+        }
+        
+        /* Display - Compact */
+        .display {
+            padding: 6px 12px;
+            text-align: right;
+            flex-shrink: 0;
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+        
+        .history-line {
+            font-size: 12px;
+            color: var(--text-dim);
+            min-height: 16px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .main-line {
+            font-size: 32px;
+            font-weight: 300;
+            color: var(--text);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            line-height: 1.2;
+        }
+        
+        .main-line.small {
+            font-size: 24px;
+        }
+        
+        .main-line.tiny {
+            font-size: 18px;
+        }
+        
+        /* Keypad - Fills remaining space */
+        .keypad {
+            flex: 1;
+            display: grid;
+            gap: 4px;
+            padding: 4px 8px 8px;
+            min-height: 0;
+        }
+        
+        .keypad.basic {
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+        }
+        
+        .keypad.scientific {
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+        }
+        
+        .btn {
+            border: none;
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            -webkit-user-select: none;
+            min-height: 0;
+        }
+        
+        .btn:active {
+            transform: scale(0.92);
+            opacity: 0.8;
+        }
+        
+        .btn-num {
+            background: var(--bg-btn-num);
+            color: var(--text);
+            font-size: 22px;
+        }
+        
+        .btn-op {
+            background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(0,212,255,0.05));
+            color: var(--cyan);
+            font-size: 22px;
+        }
+        
+        .btn-op.active {
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            color: white;
+        }
+        
+        .btn-fn {
+            background: rgba(239,68,68,0.1);
+            color: var(--red);
+            font-size: 14px;
+        }
+        
+        .btn-sci {
+            background: rgba(168,85,247,0.1);
+            color: var(--purple);
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .btn-eq {
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 0 15px rgba(0,212,255,0.3);
+        }
+        
+        .btn-zero {
+            grid-column: span 2;
+        }
+        
+        /* History Panel */
+        .history-panel {
+            position: absolute;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-card);
+            z-index: 100;
+            transition: right 0.25s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .history-panel.open {
+            right: 0;
+        }
+        
+        .hist-header {
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            flex-shrink: 0;
+        }
+        
+        .hist-title {
+            font-size: 14px;
+            color: var(--cyan);
+            font-weight: 600;
+        }
+        
+        .hist-close {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .hist-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+        
+        .hist-item {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.02);
+            cursor: pointer;
+            border-radius: 8px;
+            margin-bottom: 4px;
+        }
+        
+        .hist-item:active {
+            background: rgba(0,212,255,0.05);
+        }
+        
+        .hist-expr {
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+        
+        .hist-res {
+            font-size: 16px;
+            color: var(--cyan);
+            font-weight: 600;
+        }
+        
+        .hist-empty {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-dim);
+            font-size: 14px;
+        }
+        
+        .hist-clear {
+            padding: 8px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            flex-shrink: 0;
+        }
+        
+        .hist-clear-btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(239,68,68,0.1);
+            color: var(--red);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        ::-webkit-scrollbar {
+            width: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--cyan);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calc-wrap">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">Σ</div>
+                <div class="logo-text">CALC PRO</div>
+            </div>
+            <button class="header-btn" onclick="toggleHistory()">📋</button>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="setMode('basic')" id="tab-basic">BASIC</button>
+            <button class="tab" onclick="setMode('scientific')" id="tab-sci">SCIENTIFIC</button>
+        </div>
+        
+        <div class="mem-bar">
+            <button class="mem-btn" onclick="memClear()">MC</button>
+            <button class="mem-btn" onclick="memRecall()">MR</button>
+            <button class="mem-btn" onclick="memAdd()">M+</button>
+            <button class="mem-btn" onclick="memSub()">M−</button>
+        </div>
+        
+        <div class="display">
+            <div class="history-line" id="hist-line"></div>
+            <div class="main-line" id="main-line">0</div>
+        </div>
+        
+        <!-- Basic Keypad -->
+        <div class="keypad basic" id="kp-basic">
+            <button class="btn btn-fn" onclick="clearAll()">AC</button>
+            <button class="btn btn-fn" onclick="clearEntry()">CE</button>
+            <button class="btn btn-sci" onclick="op('%')">%</button>
+            <button class="btn btn-op" onclick="op('/')">÷</button>
+            
+            <button class="btn btn-num" onclick="num('7')">7</button>
+            <button class="btn btn-num" onclick="num('8')">8</button>
+            <button class="btn btn-num" onclick="num('9')">9</button>
+            <button class="btn btn-op" onclick="op('*')">×</button>
+            
+            <button class="btn btn-num" onclick="num('4')">4</button>
+            <button class="btn btn-num" onclick="num('5')">5</button>
+            <button class="btn btn-num" onclick="num('6')">6</button>
+            <button class="btn btn-op" onclick="op('-')">−</button>
+            
+            <button class="btn btn-num" onclick="num('1')">1</button>
+            <button class="btn btn-num" onclick="num('2')">2</button>
+            <button class="btn btn-num" onclick="num('3')">3</button>
+            <button class="btn btn-op" onclick="op('+')">+</button>
+            
+            <button class="btn btn-num btn-zero" onclick="num('0')">0</button>
+            <button class="btn btn-num" onclick="num('.')">.</button>
+            <button class="btn btn-eq" onclick="calc()">=</button>
+        </div>
+        
+        <!-- Scientific Keypad -->
+        <div class="keypad scientific" id="kp-sci" style="display:none">
+            <button class="btn btn-sci" onclick="sci('sin')">sin</button>
+            <button class="btn btn-sci" onclick="sci('cos')">cos</button>
+            <button class="btn btn-sci" onclick="sci('tan')">tan</button>
+            <button class="btn btn-sci" onclick="sci('log')">log</button>
+            <button class="btn btn-sci" onclick="sci('ln')">ln</button>
+            
+            <button class="btn btn-sci" onclick="sci('asin')">sin⁻¹</button>
+            <button class="btn btn-sci" onclick="sci('acos')">cos⁻¹</button>
+            <button class="btn btn-sci" onclick="sci('atan')">tan⁻¹</button>
+            <button class="btn btn-sci" onclick="sci('sqrt')">√</button>
+            <button class="btn btn-sci" onclick="sci('cbrt')">∛</button>
+            
+            <button class="btn btn-sci" onclick="op('^')">xʸ</button>
+            <button class="btn btn-sci" onclick="sci('sq')">x²</button>
+            <button class="btn btn-sci" onclick="sci('cb')">x³</button>
+            <button class="btn btn-sci" onclick="sci('fact')">n!</button>
+            <button class="btn btn-sci" onclick="num('(')">(</button>
+            
+            <button class="btn btn-sci" onclick="num(')')">)</button>
+            <button class="btn btn-sci" onclick="num('3.14159')">π</button>
+            <button class="btn btn-sci" onclick="num('2.71828')">e</button>
+            <button class="btn btn-fn" onclick="clearAll()">AC</button>
+            <button class="btn btn-fn" onclick="clearEntry()">CE</button>
+            
+            <button class="btn btn-num" onclick="num('7')">7</button>
+            <button class="btn btn-num" onclick="num('8')">8</button>
+            <button class="btn btn-num" onclick="num('9')">9</button>
+            <button class="btn btn-sci" onclick="op('%')">%</button>
+            <button class="btn btn-op" onclick="op('/')">÷</button>
+            
+            <button class="btn btn-num" onclick="num('4')">4</button>
+            <button class="btn btn-num" onclick="num('5')">5</button>
+            <button class="btn btn-num" onclick="num('6')">6</button>
+            <button class="btn btn-sci" onclick="sci('abs')">|x|</button>
+            <button class="btn btn-op" onclick="op('*')">×</button>
+            
+            <button class="btn btn-num" onclick="num('1')">1</button>
+            <button class="btn btn-num" onclick="num('2')">2</button>
+            <button class="btn btn-num" onclick="num('3')">3</button>
+            <button class="btn btn-sci" onclick="sci('rec')">¹/x</button>
+            <button class="btn btn-op" onclick="op('-')">−</button>
+            
+            <button class="btn btn-num" onclick="num('0')">0</button>
+            <button class="btn btn-num" onclick="num('.')">.</button>
+            <button class="btn btn-sci" onclick="toggleSign()">+/-</button>
+            <button class="btn btn-sci" onclick="toggleDeg()" id="deg-btn">DEG</button>
+            <button class="btn btn-eq" onclick="calc()">=</button>
+        </div>
+        
+        <!-- History -->
+        <div class="history-panel" id="hist-panel">
+            <div class="hist-header">
+                <div class="hist-title">📋 History</div>
+                <button class="hist-close" onclick="toggleHistory()">✕</button>
+            </div>
+            <div class="hist-list" id="hist-list">
+                <div class="hist-empty">No calculations</div>
+            </div>
+            <div class="hist-clear">
+                <button class="hist-clear-btn" onclick="clearHist()">Clear All</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let cur = '0', prev = '', op = null, reset = false;
+        let mem = 0, hist = [], deg = true, mode = 'basic';
+        
+        const main = document.getElementById('main-line');
+        const histLine = document.getElementById('hist-line');
+        const histList = document.getElementById('hist-list');
+        const histPanel = document.getElementById('hist-panel');
+        
+        function upd() {
+            main.textContent = cur;
+            main.classList.remove('small','tiny');
+            if(cur.length>10) main.classList.add('small');
+            if(cur.length>15) main.classList.add('tiny');
+        }
+        
+        function num(n) {
+            if(reset) { cur=''; reset=false; }
+            if(cur==='0' && n!=='.') cur=n;
+            else if(n==='.' && cur.includes('.')) return;
+            else cur+=n;
+            upd();
+        }
+        
+        function opFn(o) {
+            if(op!==null && !reset) calc();
+            prev=cur; op=o; reset=true;
+            histLine.textContent = prev+' '+sym(o);
+        }
+        
+        function sym(o) {
+            return {'+':'+','-':'−','*':'×','/':'÷','^':'^','%':'%'}[o]||o;
+        }
+        
+        function calc() {
+            if(op===null || reset) return;
+            let r, p=parseFloat(prev), c=parseFloat(cur);
+            try {
+                switch(op) {
+                    case '+': r=p+c; break;
+                    case '-': r=p-c; break;
+                    case '*': r=p*c; break;
+                    case '/': if(c===0) throw new Error('Div0'); r=p/c; break;
+                    case '^': r=Math.pow(p,c); break;
+                    case '%': r=p%c; break;
+                    default: return;
+                }
+                r=fmt(r);
+                addHist(prev+' '+sym(op)+' '+cur, r);
+                cur=String(r); op=null; reset=true; histLine.textContent='';
+                upd();
+            } catch(e) {
+                cur='Error'; upd();
+                setTimeout(()=>{cur='0';upd();},1500);
+            }
+        }
+        
+        function fmt(n) {
+            if(!isFinite(n)) return 'Error';
+            if(Math.abs(n)<1e-10) return 0;
+            let r=Math.round(n*1e10)/1e10;
+            let s=String(r);
+            if(s.length>12) s=r.toExponential(8);
+            return parseFloat(s);
+        }
+        
+        function sci(f) {
+            let n=parseFloat(cur), r, ex=f+'('+cur+')';
+            try {
+                switch(f) {
+                    case 'sin': r=deg?Math.sin(n*Math.PI/180):Math.sin(n); break;
+                    case 'cos': r=deg?Math.cos(n*Math.PI/180):Math.cos(n); break;
+                    case 'tan': r=deg?Math.tan(n*Math.PI/180):Math.tan(n); break;
+                    case 'asin': r=deg?Math.asin(n)*180/Math.PI:Math.asin(n); break;
+                    case 'acos': r=deg?Math.acos(n)*180/Math.PI:Math.acos(n); break;
+                    case 'atan': r=deg?Math.atan(n)*180/Math.PI:Math.atan(n); break;
+                    case 'log': if(n<=0) throw new Error(); r=Math.log10(n); break;
+                    case 'ln': if(n<=0) throw new Error(); r=Math.log(n); break;
+                    case 'sqrt': if(n<0) throw new Error(); r=Math.sqrt(n); break;
+                    case 'cbrt': r=Math.cbrt(n); break;
+                    case 'sq': r=n*n; ex=cur+'²'; break;
+                    case 'cb': r=n*n*n; ex=cur+'³'; break;
+                    case 'fact': if(n<0||!Number.isInteger(n)) throw new Error(); r=1; for(let i=2;i<=n;i++)r*=i; ex=cur+'!'; break;
+                    case 'abs': r=Math.abs(n); ex='|'+cur+'|'; break;
+                    case 'rec': if(n===0) throw new Error(); r=1/n; ex='1/'+cur; break;
+                    case 'deg': deg=!deg; cur=deg?'DEG':'RAD'; upd(); setTimeout(()=>{cur=String(n);upd();},800); return;
+                }
+                r=fmt(r); addHist(ex,r); cur=String(r); reset=true; upd();
+            } catch(e) {
+                cur='Error'; upd(); setTimeout(()=>{cur='0';upd();},1500);
+            }
+        }
+        
+        function toggleSign() {
+            if(cur!=='0') { cur=cur.startsWith('-')?cur.slice(1):'-'+cur; upd(); }
+        }
+        
+        function toggleDeg() {
+            deg=!deg; document.getElementById('deg-btn').textContent=deg?'DEG':'RAD';
+        }
+        
+        function clearAll() { cur='0'; prev=''; op=null; reset=false; histLine.textContent=''; upd(); }
+        function clearEntry() { cur='0'; upd(); }
+        
+        function memClear() { mem=0; showMem(); }
+        function memRecall() { cur=String(mem); reset=true; upd(); }
+        function memAdd() { mem+=parseFloat(cur)||0; showMem(); }
+        function memSub() { mem-=parseFloat(cur)||0; showMem(); }
+        function showMem() {
+            document.querySelectorAll('.mem-btn').forEach(b=>b.classList.toggle('active', mem!==0));
+        }
+        
+        function addHist(ex, r) { hist.unshift({ex,r}); if(hist.length>50) hist.pop(); updHist(); }
+        function updHist() {
+            if(hist.length===0) { histList.innerHTML='<div class="hist-empty">No calculations</div>'; return; }
+            histList.innerHTML=hist.map((h,i)=>`<div class="hist-item" onclick="loadHist(${i})"><div class="hist-expr">${h.ex}</div><div class="hist-res">= ${h.r}</div></div>`).join('');
+        }
+        function loadHist(i) { cur=String(hist[i].r); reset=true; upd(); toggleHistory(); }
+        function clearHist() { hist=[]; updHist(); }
+        function toggleHistory() { histPanel.classList.toggle('open'); }
+        
+        function setMode(m) {
+            mode=m;
+            document.getElementById('tab-basic').classList.toggle('active', m==='basic');
+            document.getElementById('tab-sci').classList.toggle('active', m==='scientific');
+            document.getElementById('kp-basic').style.display=m==='basic'?'grid':'none';
+            document.getElementById('kp-sci').style.display=m==='scientific'?'grid':'none';
+        }
+        
+        // Keyboard
+        document.addEventListener('keydown', e=>{
+            if(e.key>='0'&&e.key<='9') num(e.key);
+            if(e.key==='.') num('.');
+            if(e.key==='+') opFn('+');
+            if(e.key==='-') opFn('-');
+            if(e.key==='*') opFn('*');
+            if(e.key==='/') opFn('/');
+            if(e.key==='^') opFn('^');
+            if(e.key==='%') opFn('%');
+            if(e.key==='Enter'||e.key==='=') calc();
+            if(e.key==='Escape') clearAll();
+            if(e.key==='Backspace') { cur=cur.length>1?cur.slice(0,-1):'0'; upd(); }
+        });
+        
+        // Prevent double-tap zoom
+        let lastTouch=0;
+        document.addEventListener('touchend', e=>{
+            const now=Date.now();
+            if(now-lastTouch<300) e.preventDefault();
+            lastTouch=now;
+        }, {passive:false});
+    </script>
+</body>
+</html>'''
+
+with open('/mnt/agents/output/calc_pro_compact.html', 'w', encoding='utf-8') as f:
+    f.write(html_code)
+
+print("✅ Compact Calc Pro saved!")
+print(f"Size: {len(html_code)} chars")
+
 
 <html lang="en">
 <head>
@@ -821,5 +1484,4 @@
             }
         }
 
-        const calc = new Calculator();
-    </script>
+        const calc = 
