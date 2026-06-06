@@ -1,5 +1,7 @@
+pro calc 
 
-html_code = '''<!DOCTYPE html>
+
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -12,7 +14,7 @@ html_code = '''<!DOCTYPE html>
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
-        }
+        
         
         :root {
             --bg: #0a0a0f;
@@ -1484,4 +1486,4 @@ print(f"Size: {len(html_code)} chars")
             }
         }
 
-        const calc 
+        const
