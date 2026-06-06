@@ -1484,4 +1484,4 @@ print(f"Size: {len(html_code)} chars")
             }
         }
 
-        const calc = 
+        const calc 
