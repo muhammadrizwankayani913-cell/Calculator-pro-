@@ -1,4 +1,6 @@
 pro calc 
+        
+
 
 html_code = '''<!DOCTYPE html>
 <html lang="en">
@@ -530,9 +532,7 @@ html_code = '''<!DOCTYPE html>
         .error {
             color: var(--accent-red) !important;
         }
-    </style>
-</head>
-<body>
+    </st
     <div class="particles" id="particles"></div>
     
     <div class="calculator-container">
@@ -1070,5 +1070,4 @@ with open('/mnt/agents/output/calc_pro.html', 'w', encoding='utf-8') as f:
     f.write(html_code)
 
 print("File saved successfully!")
-print(f"File size: {len(html_code)} characters")
-        
+print(f"File size: {
