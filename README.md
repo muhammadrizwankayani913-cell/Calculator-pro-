@@ -1,5 +1,4 @@
-# Calculator-pro-
-<!DOCTYPE html>
+pro
 <html lang="en">
 <head>
     <meta charset="UTF-8">
