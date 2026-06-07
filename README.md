@@ -1,4 +1,5 @@
 PRO calc
+
 html_code = '''<!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -217,4 +218,4 @@ with open('/mnt/agents/output/calculator.html', 'w', encoding='utf-8') as f:
     f.write(html_code)
 
 print("File saved successfully!")
-print(f"Total characters: {len(html_code)}")
+print(f"Total characters
